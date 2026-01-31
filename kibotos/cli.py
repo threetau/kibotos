@@ -157,9 +157,7 @@ app.add_typer(db_app, name="db")
 
 @db_app.command("init")
 def db_init(
-    database_url: Annotated[
-        str | None, typer.Option(help="Database URL (overrides env)")
-    ] = None,
+    database_url: Annotated[str | None, typer.Option(help="Database URL (overrides env)")] = None,
 ) -> None:
     """Initialize the database schema."""
     from kibotos.db import init_db
@@ -174,9 +172,7 @@ def db_init(
 
 @db_app.command("reset")
 def db_reset(
-    database_url: Annotated[
-        str | None, typer.Option(help="Database URL (overrides env)")
-    ] = None,
+    database_url: Annotated[str | None, typer.Option(help="Database URL (overrides env)")] = None,
     force: Annotated[bool, typer.Option("--force", "-f", help="Skip confirmation")] = False,
 ) -> None:
     """Reset the database (drop and recreate all tables)."""

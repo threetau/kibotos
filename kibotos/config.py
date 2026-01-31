@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class DatabaseSettings(BaseSettings):
     """Database configuration."""
 
-    model_config = SettingsConfigDict(env_prefix="")
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
 
     database_url: str = Field(
         default="postgresql+asyncpg://kibotos:secret@localhost:5432/kibotos",
@@ -18,12 +18,13 @@ class DatabaseSettings(BaseSettings):
 
 
 class S3Settings(BaseSettings):
-    """S3 storage configuration."""
+    """S3 storage configuration (supports AWS S3 and Cloudflare R2)."""
 
-    model_config = SettingsConfigDict(env_prefix="")
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
 
     s3_bucket: str = Field(default="kibotos-videos", alias="S3_BUCKET")
-    s3_region: str = Field(default="us-east-1", alias="S3_REGION")
+    s3_region: str = Field(default="auto", alias="S3_REGION")
+    s3_endpoint: str | None = Field(default=None, alias="S3_ENDPOINT")
     aws_access_key_id: str | None = Field(default=None, alias="AWS_ACCESS_KEY_ID")
     aws_secret_access_key: str | None = Field(default=None, alias="AWS_SECRET_ACCESS_KEY")
 
@@ -36,7 +37,7 @@ class S3Settings(BaseSettings):
 class VLMSettings(BaseSettings):
     """VLM API configuration."""
 
-    model_config = SettingsConfigDict(env_prefix="VLM_")
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="VLM_", extra="ignore")
 
     api_url: str = Field(default="https://llm.chutes.ai/v1")
     api_key: str | None = Field(default=None)
@@ -46,7 +47,7 @@ class VLMSettings(BaseSettings):
 class BittensorSettings(BaseSettings):
     """Bittensor chain configuration."""
 
-    model_config = SettingsConfigDict(env_prefix="")
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
 
     netuid: int | None = Field(default=None, alias="NETUID")
     network: str = Field(default="test", alias="NETWORK")
@@ -57,7 +58,7 @@ class BittensorSettings(BaseSettings):
 class APISettings(BaseSettings):
     """API server configuration."""
 
-    model_config = SettingsConfigDict(env_prefix="API_")
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="API_", extra="ignore")
 
     host: str = Field(default="0.0.0.0")
     port: int = Field(default=8000)
@@ -66,7 +67,7 @@ class APISettings(BaseSettings):
 class SchedulerSettings(BaseSettings):
     """Scheduler configuration."""
 
-    model_config = SettingsConfigDict(env_prefix="")
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
 
     cycle_duration_minutes: int = Field(default=60, alias="CYCLE_DURATION_MINUTES")
     prompts_per_cycle: int = Field(default=50, alias="PROMPTS_PER_CYCLE")

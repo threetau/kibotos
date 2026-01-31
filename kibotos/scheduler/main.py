@@ -130,9 +130,7 @@ class SchedulerService:
             block_number = int(datetime.utcnow().timestamp())
 
             # Store computed weights
-            await self.weights.store_computed_weights(
-                db, cycle_id, block_number, weights
-            )
+            await self.weights.store_computed_weights(db, cycle_id, block_number, weights)
             print(f"Computed weights for {len(weights)} miners")
 
         # Finalize the cycle

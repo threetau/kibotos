@@ -9,7 +9,7 @@ from kibotos.config import get_settings
 
 
 class S3Client:
-    """S3 client for video storage operations."""
+    """S3 client for video storage operations (supports AWS S3 and Cloudflare R2)."""
 
     def __init__(
         self,
@@ -17,9 +17,11 @@ class S3Client:
         region: str,
         access_key_id: str | None = None,
         secret_access_key: str | None = None,
+        endpoint_url: str | None = None,
     ):
         self.bucket = bucket
         self.region = region
+        self.endpoint_url = endpoint_url
 
         # Configure boto3 client
         config = Config(
@@ -31,6 +33,8 @@ class S3Client:
         if access_key_id and secret_access_key:
             client_kwargs["aws_access_key_id"] = access_key_id
             client_kwargs["aws_secret_access_key"] = secret_access_key
+        if endpoint_url:
+            client_kwargs["endpoint_url"] = endpoint_url
 
         self._client = boto3.client("s3", **client_kwargs)
 
@@ -104,4 +108,5 @@ def get_s3_client() -> S3Client:
         region=settings.s3.s3_region,
         access_key_id=settings.s3.aws_access_key_id,
         secret_access_key=settings.s3.aws_secret_access_key,
+        endpoint_url=settings.s3.s3_endpoint,
     )
