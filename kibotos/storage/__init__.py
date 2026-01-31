@@ -1,0 +1,5 @@
+"""S3 storage layer."""
+
+from kibotos.storage.s3 import S3Client, get_s3_client
+
+__all__ = ["S3Client", "get_s3_client"]
