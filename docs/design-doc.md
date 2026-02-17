@@ -43,69 +43,7 @@ Accept submissions that are real, task-correct, physically plausible, and useful
 
 ### Container Format
 
-All submissions are packaged as a **Zarr archive** (the "submission bundle").
-
-### Manifest
-
-The manifest is the authoritative source of metadata for a submission. All fields below are required unless marked optional.
-
-| Path | Type | Description |
-|---|---|---|
-| `/manifest/schema_version` | string (semver) | Version of the manifest schema |
-| `/manifest/bundle_version` | string (semver) | Version of this specific bundle |
-| `/manifest/submission_id` | UUID | Unique ID for this submission |
-| `/manifest/episode_id` | UUID | Unique ID for the episode |
-| `/manifest/miner_id` | string | Submitting miner identity |
-| `/manifest/created_at` | ISO 8601 | Submission creation timestamp |
-| `/manifest/robot_model_id` | string | Robot model identifier |
-| `/manifest/robot_model_revision` | string | Robot model revision |
-| `/manifest/joint_names` | string[J] | Ordered list of joint names |
-| `/manifest/sampling_rate_hz` | float | Kinematic sampling rate |
-| `/manifest/time_base` | string | Must be `"relative"` |
-| `/manifest/time_units` | string | Must be `"ms"` |
-| `/manifest/units/joint_pos` | string | Must be `"rad"` |
-| `/manifest/units/joint_vel` | string | Must be `"rad/s"` |
-| `/manifest/camera/primary/intrinsics` | JSON or array | Camera intrinsic parameters |
-| `/manifest/camera/primary/extrinsics` | JSON or array | Camera extrinsic parameters |
-| `/manifest/video/primary/fps` | float | Video frame rate |
-| `/manifest/video/primary/frame_count` | int | Total frame count |
-| `/manifest/sync/sync_offset_ms_claimed` | int | Miner-claimed A/V sync offset in ms |
-
-### Kinematic Streams
-
-| Path | Shape | Type | Notes |
-|---|---|---|---|
-| `/kinematics/timestamps_ms` | (T,) | int64 | Must be strictly increasing |
-| `/kinematics/joint_pos` | (T, J) | float32 | Joint positions in radians |
-| `/kinematics/joint_vel` | (T, J) | float32 | Joint velocities in rad/s |
-
-> `joint_vel` is optional. If absent, the validator will compute it from `joint_pos` and flag the submission accordingly.
-
-### Video Streams
-
-Choose one approach and use it consistently:
-
-- **Raw frames:** `/video/primary/frames`, shape `(N, H, W, C)`, dtype `uint8`
-- **Encoded:** `/video/primary/encoded` (bytes) with accompanying metadata
-
-### Optional Streams
-
-| Path | Description |
-|---|---|
-| `/video/secondary_*/*` | Additional camera angles |
-| `/objects/*` | Object pose streams (tag- or vision-derived) |
-| `/imu/*` | IMU data |
-| `/torques/*` | Joint torque data |
-| `/contacts/*` | Contact state data |
-| `/pose/*` | Miner-supplied pose estimation outputs |
-
-### Submission Invariants
-
-Before any gate processing, the following must hold:
-
-- Array shapes for T and J must match manifest declarations.
-- No `NaN` or `Inf` values in any numeric array.
-- If both `joint_vel` and `joint_pos` are present: `joint_vel ≈ d(joint_pos)/dt` within tolerance.
+All submissions are packaged as a **Zarr archive** (the "submission bundle"), see Manifest in Appendix.
 
 ---
 
@@ -471,3 +409,69 @@ The following design decisions have recommended defaults, but are not yet finali
 | Minimum sensor set | Positions + timestamps required; velocities optional (computed + flagged if absent) |
 | VLM provider | Freeze model versions; treat as calibrated instrument with fixed prompt versions |
 | Reward policy | Piecewise curve with confidence bonuses; not purely linear |
+
+
+# Appendix
+
+## Manifest
+
+
+The manifest is the authoritative source of metadata for a submission. All fields below are required unless marked optional.
+
+| Path | Type | Description |
+|---|---|---|
+| `/manifest/schema_version` | string (semver) | Version of the manifest schema |
+| `/manifest/bundle_version` | string (semver) | Version of this specific bundle |
+| `/manifest/submission_id` | UUID | Unique ID for this submission |
+| `/manifest/episode_id` | UUID | Unique ID for the episode |
+| `/manifest/miner_id` | string | Submitting miner identity |
+| `/manifest/created_at` | ISO 8601 | Submission creation timestamp |
+| `/manifest/robot_model_id` | string | Robot model identifier |
+| `/manifest/robot_model_revision` | string | Robot model revision |
+| `/manifest/joint_names` | string[J] | Ordered list of joint names |
+| `/manifest/sampling_rate_hz` | float | Kinematic sampling rate |
+| `/manifest/time_base` | string | Must be `"relative"` |
+| `/manifest/time_units` | string | Must be `"ms"` |
+| `/manifest/units/joint_pos` | string | Must be `"rad"` |
+| `/manifest/units/joint_vel` | string | Must be `"rad/s"` |
+| `/manifest/camera/primary/intrinsics` | JSON or array | Camera intrinsic parameters |
+| `/manifest/camera/primary/extrinsics` | JSON or array | Camera extrinsic parameters |
+| `/manifest/video/primary/fps` | float | Video frame rate |
+| `/manifest/video/primary/frame_count` | int | Total frame count |
+| `/manifest/sync/sync_offset_ms_claimed` | int | Miner-claimed A/V sync offset in ms |
+
+### Kinematic Streams
+
+| Path | Shape | Type | Notes |
+|---|---|---|---|
+| `/kinematics/timestamps_ms` | (T,) | int64 | Must be strictly increasing |
+| `/kinematics/joint_pos` | (T, J) | float32 | Joint positions in radians |
+| `/kinematics/joint_vel` | (T, J) | float32 | Joint velocities in rad/s |
+
+> `joint_vel` is optional. If absent, the validator will compute it from `joint_pos` and flag the submission accordingly.
+
+### Video Streams
+
+Choose one approach and use it consistently:
+
+- **Raw frames:** `/video/primary/frames`, shape `(N, H, W, C)`, dtype `uint8`
+- **Encoded:** `/video/primary/encoded` (bytes) with accompanying metadata
+
+### Optional Streams
+
+| Path | Description |
+|---|---|
+| `/video/secondary_*/*` | Additional camera angles |
+| `/objects/*` | Object pose streams (tag- or vision-derived) |
+| `/imu/*` | IMU data |
+| `/torques/*` | Joint torque data |
+| `/contacts/*` | Contact state data |
+| `/pose/*` | Miner-supplied pose estimation outputs |
+
+### Submission Invariants
+
+Before any gate processing, the following must hold:
+
+- Array shapes for T and J must match manifest declarations.
+- No `NaN` or `Inf` values in any numeric array.
+- If both `joint_vel` and `joint_pos` are present: `joint_vel ≈ d(joint_pos)/dt` within tolerance.
