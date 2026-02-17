@@ -2,6 +2,11 @@
 
 Bittensor subnet for robot video data collection. Miners submit first-person video data of physical tasks, validators assess quality via automated pipelines, and high-quality training data is aggregated for robotics foundation models.
 
+[Project Design Doc](./docs/design-doc.md)
+
+> [!WARNING]  
+> This sub-subnet is under development and not usable in its current form.
+
 ## Overview
 
 - **Miners** record and submit first-person videos matching requested prompts
